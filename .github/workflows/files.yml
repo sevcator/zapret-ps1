@@ -95,15 +95,18 @@ jobs:
 
       - name: Prepare files
         shell: C:\cygwin\bin\bash.exe -e '{0}'
+        env:
+          CYGWIN_DLL: /cygdrive/c/cygwin/bin/cygwin1.dll
         run: |
-          CYGWIN_DLL="/cygdrive/c/cygwin64/bin/cygwin1.dll"
-          mkdir -p repo/files
-          cp -a output/* "$CYGWIN_DLL" repo/files/
-          cd repo
+          WORKSPACE=/cygdrive/d/a/zapret-ps1/zapret-ps1
+          DEST="$WORKSPACE/repo/files"
+          mkdir -p "$DEST"
+          cp "$WORKSPACE/output"/* "$CYGWIN_DLL" "$DEST/"
+          cd "$WORKSPACE/repo"
           wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
           unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
           wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
-
+          
       - name: Commit and push
         shell: bash
         run: |
