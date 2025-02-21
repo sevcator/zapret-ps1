@@ -92,29 +92,19 @@ jobs:
           cd zapret &&
           make -C nfq cygwin &&
           cp -a nfq/winws.exe ../output
-
+          
       - name: Prepare files
         shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
         run: |
-          WORKSPACE=$(cygpath "$GITHUB_WORKSPACE")
-          FILES_DIR="$WORKSPACE/repo/files"
-          
-          # Create directory
-          /usr/bin/mkdir -p "$FILES_DIR"
-          
-          # Copy files
-          /usr/bin/cp "$WORKSPACE/output"/* /usr/bin/cygwin1.dll "$FILES_DIR/"
-          
-          # Change to repo directory
-          cd "$WORKSPACE/repo"
-          
-          # Download and extract WinDivert
-          /usr/bin/wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
-          /usr/bin/unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
-          
-          # Download ipset-discord.txt
+          WORKSPACE=/cygdrive/d/a/zapret-ps1/zapret-ps1 && \
+          FILES_DIR="$WORKSPACE/repo/files" && \
+          /usr/bin/mkdir -p "$FILES_DIR" && \
+          /usr/bin/cp "$WORKSPACE/output"/* /usr/bin/cygwin1.dll "$FILES_DIR/" && \
+          cd "$WORKSPACE/repo" && \
+          /usr/bin/wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip && \
+          /usr/bin/unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/ && \
           /usr/bin/wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
-
+          
       - name: Commit and push
         shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
         run: |
