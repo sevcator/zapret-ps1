@@ -22,7 +22,7 @@ jobs:
       - name: Checkout current repository
         uses: actions/checkout@v4
         with:
-          path: current
+          path: repo
 
       - name: Set up MinGW
         uses: msys2/setup-msys2@v2
@@ -94,20 +94,19 @@ jobs:
           cp -a nfq/winws.exe ../output
 
       - name: Prepare files
-        shell: C:\cygwin\bin\bash.exe -e '{0}'
+        shell: bash
         run: |
-          cd current
-          rm -rf files
-          mkdir -p files
-          cp -a -t files ../output/* /usr/bin/cygwin1.dll
+          mkdir -p repo/files
+          cp -a output/* /usr/bin/cygwin1.dll repo/files/
+          cd repo
           wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
-          unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files
+          unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
           wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
 
       - name: Commit and push
         shell: bash
-        working-directory: current
         run: |
+          cd repo
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add files/
