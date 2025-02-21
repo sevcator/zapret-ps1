@@ -13,7 +13,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout
+      - name: Checkout zapret
         uses: actions/checkout@v4
         with:
           path: zapret
@@ -94,23 +94,35 @@ jobs:
           cp -a nfq/winws.exe ../output
 
       - name: Prepare files
-        shell: C:\cygwin\bin\bash.exe -e '{0}'
-        working-directory: ${{ github.workspace }}
+        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
         run: |
-          mkdir -p repo/files
-          cp output/* /usr/bin/cygwin1.dll repo/files/
+          WORKSPACE=$(cygpath "$GITHUB_WORKSPACE")
+          FILES_DIR="$WORKSPACE/repo/files"
           
-          cd repo
-          wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
-          unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
-          wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
+          # Create directory
+          /usr/bin/mkdir -p "$FILES_DIR"
+          
+          # Copy files
+          /usr/bin/cp "$WORKSPACE/output"/* /usr/bin/cygwin1.dll "$FILES_DIR/"
+          
+          # Change to repo directory
+          cd "$WORKSPACE/repo"
+          
+          # Download and extract WinDivert
+          /usr/bin/wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
+          /usr/bin/unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
+          
+          # Download ipset-discord.txt
+          /usr/bin/wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
 
       - name: Commit and push
-        shell: bash
-        working-directory: ${{ github.workspace }}/repo
+        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add files/
-          git commit -m "Update files $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || exit 0
-          git push
+          WORKSPACE=$(cygpath "$GITHUB_WORKSPACE")
+          cd "$WORKSPACE/repo"
+          
+          /usr/bin/git config --global user.name "github-actions[bot]"
+          /usr/bin/git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          /usr/bin/git add files/
+          /usr/bin/git commit -m "Update files $(/usr/bin/date -u '+%Y-%m-%d %H:%M:%S UTC')" || exit 0
+          /usr/bin/git push
