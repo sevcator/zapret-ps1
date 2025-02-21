@@ -95,22 +95,20 @@ jobs:
 
       - name: Prepare files
         shell: C:\cygwin\bin\bash.exe -e '{0}'
-        env:
-          CYGWIN_DLL: /cygdrive/c/cygwin/bin/cygwin1.dll
+        working-directory: ${{ github.workspace }}
         run: |
-          WORKSPACE=/cygdrive/d/a/zapret-ps1/zapret-ps1
-          DEST="$WORKSPACE/repo/files"
-          mkdir -p "$DEST"
-          cp "$WORKSPACE/output"/* "$CYGWIN_DLL" "$DEST/"
-          cd "$WORKSPACE/repo"
+          mkdir -p repo/files
+          cp output/* /usr/bin/cygwin1.dll repo/files/
+          
+          cd repo
           wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
           unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
           wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
-          
+
       - name: Commit and push
         shell: bash
+        working-directory: ${{ github.workspace }}/repo
         run: |
-          cd repo
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add files/
