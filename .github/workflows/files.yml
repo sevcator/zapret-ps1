@@ -1,0 +1,115 @@
+name: update-files
+run-name: Update files in repository
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */2 * * *'  # Запуск каждые 2 часа
+
+jobs:
+  update:
+    name: Windows x86_64
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: zapret
+          repository: bol-van/zapret
+
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          path: current
+
+      - name: Set up MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: mingw-w64-x86_64-toolchain
+
+      - name: Build ip2net, mdig
+        shell: msys2 {0}
+        run: |
+          export CFLAGS="-DZAPRET_GH_VER=${{ github.ref_name }} -DZAPRET_GH_HASH=${{ github.sha }}"
+          mkdir -p output
+          cd zapret
+          mingw32-make -C ip2net win
+          mingw32-make -C mdig win
+          cp -a {ip2net/ip2net,mdig/mdig}.exe ../output
+
+      - name: Restore psmisc from cache
+        id: cache-restore-psmisc
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}/psmisc
+          key: psmisc-x86_64
+
+      - name: Set up Cygwin
+        env:
+          PACKAGES: ${{ steps.cache-restore-psmisc.outputs.cache-hit != 'true' && 'cygport gettext-devel libiconv-devel libncurses-devel' || null }}
+        uses: cygwin/cygwin-install-action@v4
+        with:
+          platform: x86_64
+          site: http://ctm.crouchingtigerhiddenfruitbat.org/pub/cygwin/circa/64bit/2024/01/30/231215
+          check-sig: false
+          packages: >-
+            gcc-core
+            make
+            zlib-devel
+            zip
+            unzip
+            wget
+            ${{ env.PACKAGES }}
+
+      - name: Build psmisc
+        if: steps.cache-restore-psmisc.outputs.cache-hit != 'true'
+        env:
+          URL: https://mirrors.kernel.org/sourceware/cygwin/x86_64/release/psmisc
+        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
+        run: >-
+          export MAKEFLAGS=-j$(nproc) &&
+          mkdir -p psmisc && cd psmisc &&
+          wget -qO- ${URL} | grep -Po 'href=\"\Kpsmisc-(\d+\.)+\d+.+src\.tar\.xz(?=\")' | xargs -I{} wget -O- ${URL}/{} | tar -xJ &&
+          cd psmisc-*.src &&
+          echo CYGCONF_ARGS+=\" --disable-dependency-tracking --disable-nls\" >> psmisc.cygport &&
+          cygport psmisc.cygport prep compile install
+
+      - name: Save psmisc to cache
+        if: steps.cache-restore-psmisc.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/psmisc
+          key: psmisc-x86_64
+
+      - name: Build winws
+        shell: C:\cygwin\bin\bash.exe -eo pipefail '{0}'
+        run: >-
+          export MAKEFLAGS=-j$(nproc) &&
+          export CFLAGS="-DZAPRET_GH_VER=${{ github.ref_name }} -DZAPRET_GH_HASH=${{ github.sha }}" &&
+          cd zapret &&
+          make -C nfq cygwin &&
+          cp -a nfq/winws.exe ../output
+
+      - name: Prepare files
+        shell: C:\cygwin\bin\bash.exe -e '{0}'
+        run: |
+          cd current
+          rm -rf files
+          mkdir -p files
+          cp -a -t files ../output/* /usr/bin/cygwin1.dll
+          wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
+          unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files
+          wget -O files/ipset-discord.txt https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
+
+      - name: Commit and push
+        shell: bash
+        working-directory: current
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add files/
+          git commit -m "Update files $(date -u '+%Y-%m-%d %H:%M:%S UTC')" || exit 0
+          git push
