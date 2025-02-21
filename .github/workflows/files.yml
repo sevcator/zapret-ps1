@@ -94,10 +94,11 @@ jobs:
           cp -a nfq/winws.exe ../output
 
       - name: Prepare files
-        shell: bash
+        shell: C:\cygwin\bin\bash.exe -e '{0}'
         run: |
+          CYGWIN_DLL="/cygdrive/c/cygwin64/bin/cygwin1.dll"
           mkdir -p repo/files
-          cp -a output/* /usr/bin/cygwin1.dll repo/files/
+          cp -a output/* "$CYGWIN_DLL" repo/files/
           cd repo
           wget -O WinDivert.zip https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip
           unzip -j WinDivert.zip "*/x64/WinDivert.dll" "*/x64/WinDivert64.sys" -d files/
