@@ -14,19 +14,21 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Create files directory
-      run: mkdir -p files
+    - name: Create and clean files directory
+      run: |
+        rm -rf files/*  # Удаляет все существующие файлы в директории
+        mkdir -p files  # Создает директорию, если она не существует
       
     - name: Download files
       run: |
         cd files
-        wget https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/winws.exe
-        wget https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/cygwin1.dll
-        wget https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert.dll
-        wget https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert64.sys
-        wget https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
-        wget -O quic-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/quic_initial_www_google_com.bin
-        wget -O tls-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/tls_clienthello_www_google_com.bin
+        wget -N https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/winws.exe
+        wget -N https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/cygwin1.dll
+        wget -N https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert.dll
+        wget -N https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert64.sys
+        wget -N https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
+        wget -N -O quic-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/quic_initial_www_google_com.bin
+        wget -N -O tls-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/tls_clienthello_www_google_com.bin
         
     - name: Configure Git
       run: |
