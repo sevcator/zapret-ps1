@@ -1,5 +1,6 @@
 Clear-Host
-$zapretDir = "%winDir%\Zapret"
+$zapretDir = "$env:windir\Zapret"
+$system32Dir = "$env:windir\System32"
 Write-Host "  /ZZZZZ    AAAA   PPPPP   RRRRR   EEEEE   TTTTT"
 Write-Host "      /Z   A    A  P    P  R    R  E         T"
 Write-Host "     /Z   A      A P    P  R    R  E         T"
