@@ -1,6 +1,7 @@
 Clear-Host
 $zapretDir = "$env:windir\Zapret"
 $system32Dir = "$env:windir\System32"
+Write-Host ""
 Write-Host "  /ZZZZZ    AAAA   PPPPP   RRRRR   EEEEE   TTTTT"
 Write-Host "      /Z   A    A  P    P  R    R  E         T"
 Write-Host "     /Z   A      A P    P  R    R  E         T"
@@ -8,7 +9,8 @@ Write-Host "    /Z    AAAAAAAA PPPPP   RRRRR   EEEE      T"
 Write-Host "   /Z     A      A P       R   R   E         T"
 Write-Host "  /Z      A      A P       R    R  E         T"
 Write-Host " /ZZZZZ   A      A P       R     R EEEEE     T"
-Write-Host "    sevcator.github.io / github.com/bol-van"
+Write-Host "    sevcator.github.io - github.com/bol-van"
+Write-Host ""
 function Check-Admin {
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object System.Security.Principal.WindowsPrincipal($identity)
@@ -43,30 +45,29 @@ if (-not [Environment]::Is64BitOperatingSystem) {
 }
 Write-Host "- Your system is 64-bit"
 Write-Host "- Terminating processes"
-$processesToKill = @("GoodbyeDPI.exe", "winws.exe", "zapret.exe")
-foreach ($process in $processesToKill) {
-   taskkill /f /im $process -ErrorAction SilentlyContinue | Out-Null
+@("GoodbyeDPI", "winws", "zapret") | ForEach-Object {
+    Get-Process -Name $_ -ErrorAction SilentlyContinue | Stop-Process -Force
 }
 Write-Host "- Destroying services"
-$servicesToStop = @("zapret", "winws1", "goodbyedpi", "windivert", "windivert14")
-foreach ($service in $servicesToStop) {
-    $serviceStatus = Get-Service -Name $service -ErrorAction SilentlyContinue | Out-Null
+@("zapret", "winws1", "goodbyedpi", "windivert", "windivert14") | ForEach-Object {
+    $serviceName = $_
+    try {
+        if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+            Stop-Service -Name $serviceName -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 1
+            
+            $null = cmd /c "sc.exe stop $serviceName 2>&1"
+            Start-Sleep -Seconds 1
+            
+            $null = cmd /c "sc.exe delete $serviceName 2>&1"
+            Start-Sleep -Seconds 1
+            
+            if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+                $null = cmd /c "sc.exe delete $serviceName 2>&1"
+            }
+        }
+    } catch {
 
-    if ($serviceStatus) {
-        try {
-           sc stop $service -ErrorAction SilentlyContinue | Out-Null
-        } catch {
-            Write-Host ("{0}: {1}" -f $service, $_.Exception.Message) -ForegroundColor Red
-        }
-        
-        try {
-            sc.exe delete $service -ErrorAction SilentlyContinue | Out-Null
-        } catch {
-            Write-Host ("{0}: {1}" -f $service, $_.Exception.Message) -ForegroundColor Yellow
-	          Write-Host "If you have problems, try restart your machine!" -ForegroundColor Yellow
-        }
-    } else {
-    
     }
 }
 Write-Host "- Flushing DNS cache"
@@ -100,7 +101,7 @@ $tacticsFiles = @(
     "hosts-flowseal-alt.txt", "hosts-flowseal-mgts-2.txt",
     "hosts-flowseal-mgts.txt", "hosts-flowseal.txt"
 )
-$baseUrl = "https://github.com/xdxdf/zapret-ps1/raw/refs/heads/main/files"
+$baseUrl = "https://github.com/sevcator/zapret-ps1/raw/refs/heads/main/files"
 $tacticsUrl = "$baseUrl/tactics"
 function Download-Files($files, $baseUrl, $destination) {
     foreach ($file in $files) {
@@ -123,18 +124,13 @@ foreach ($file in $files) {
         Write-Host ("{0}: {1}" -f $($file.Name), $_.Exception.Message) -ForegroundColor Red
     }
 }
-<или улучши логику выкачивания файлов tactics>
-<перемести zapret-redirect.cmd в system32 папку и переименуй в zapret.cmd>
-<прочитай файл autohosts-bol-van.txt из той папки и запиши в $ZAPRET_ARGS>
-Set-Location $zapretDir | Out-Null
 $ZAPRET_ARGS = Get-Content "$zapretDir\autohosts-bol-van.txt" -Raw
+$ZAPRET_ARGS = $ZAPRET_ARGS.Replace("%zapretDir%", $zapretDir)
 Write-Host "- Creating service"
 try {
     sc.exe create winws1 binPath= "`"$zapretDir\winws.exe $ZAPRET_ARGS`"" DisplayName= "zapret DPI bypass" start= auto | Out-Null
-    sc description winws1 "Bypass internet censorship via modification DPI @ by bol-van & xd.github.io" | Out-Null
     sc.exe start winws1 | Out-Null
 } catch {
     Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
 }
 Write-Host "- Done!"
-
