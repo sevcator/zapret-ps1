@@ -99,26 +99,15 @@ cls
 echo.
 set /p confirm="- [Y/N] Are you want to uninstall? "
 if /i not "%confirm%"=="Y" goto menu
-set /p savetxt="- [Y] Save automatic hosts? "
-if /i "%savetxt%"=="y" (
-    if exist "%zapretDir%\list-auto.txt" (
-        mkdir "%zapretDir%_temp" >nul 2>&1
-        copy "%zapretDir%\list-auto.txt" "%zapretDir%_temp\" >nul 2>&1
-        rmdir /s /q "%zapretDir%" >nul 2>&1
-        rename "%zapretDir%_temp" "Zapret" >nul 2>&1
-    )
-) else (
-    rmdir /s /q "%zapretDir%" >nul 2>&1
-)
 net stop winws1 >nul 2>&1
 sc stop windivert >nul 2>&1
 sc stop windivert11 >nul 2>&1
-timeout /t 1 /nobreak >nul 2>&1
+timeout /t 3 /nobreak >nul 2>&1
 sc delete winws1 >nul 2>&1
+sc delete windivert >nul 2>&1
+sc delete windivert11 >nul 2>&1
+msg * zapret has been Uninstalled
 rmdir /s /q "%zapretDir%" >nul 2>&1
-del "%windir%\System32\zapret.cmd" >nul 2>&1
-echo - Uninstalled
-timeout /t 2 /nobreak >nul 2>&1
 goto exit
 
 :exit
