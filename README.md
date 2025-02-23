@@ -25,5 +25,7 @@
 irm https://sevcator.github.io/zapret.ps1 | iex
 ```
 
+3. Done!
+   
 # Contributing
 Feel free to contribute to this project by submitting issues or pull requests.
