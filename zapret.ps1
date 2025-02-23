@@ -57,7 +57,7 @@ Write-Host "- Destroying services"
             Start-Sleep -Seconds 1
             
             $null = cmd /c "sc.exe stop $serviceName 2>&1"
-            Start-Sleep -Seconds 1
+            Start-Sleep -Seconds 3
             
             $null = cmd /c "sc.exe delete $serviceName 2>&1"
             Start-Sleep -Seconds 1
@@ -128,7 +128,7 @@ $ZAPRET_ARGS = Get-Content "$zapretDir\autohosts-bol-van.txt" -Raw
 $ZAPRET_ARGS = $ZAPRET_ARGS.Replace("%zapretDir%", $zapretDir)
 Write-Host "- Creating service"
 try {
-    sc.exe create winws1 binPath= "`"$zapretDir\winws.exe $ZAPRET_ARGS`"" start=auto DisplayName="zapret" type=own | Out-Null
+    sc.exe create winws1 binPath= "$zapretDir\winws.exe $ZAPRET_ARGS" start= auto DisplayName= "zapret" type= own | Out-Null
     sc.exe description winws1 "Bypass internet censorship via modification DPI by bol-van and sevcator.github.io" | Out-Null
     sc.exe start winws1 | Out-Null
 } catch {
