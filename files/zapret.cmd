@@ -88,7 +88,7 @@ timeout /t 1 /nobreak >nul 2>&1
 sc delete winws1 >nul 2>&1
 timeout /t 1 /nobreak >nul 2>&1
 sc create winws1 binPath="%zapretDir%\winws.exe !tacticContent!" start=auto DisplayName="zapret" type=own >nul 2>&1
-sc description winws1 "Bypass internet censorship via modification DPI @ by bol-van, sevcator.github.io" >nul 2>&1
+sc description winws1 "Bypass internet censorship via modification DPI by bol-van and sevcator.github.io" >nul 2>&1
 net start winws1 >nul 2>&1
 echo - Tactic changed successfully!
 timeout /t 2 /nobreak >nul 2>&1
