@@ -81,7 +81,7 @@ try {
     Add-MpPreference -ExclusionPath $exclusionPath -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 5
 } catch {
-    Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion C:\Windows\Zapret\winws.exe, C:\Windows\Zapret\WinDivert.dll, C:\Windows\Zapret\WinDivert64.sys" -ForegroundColor Yellow
+    Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion $zapretDir\winws.exe, $zapretDir\WinDivert.dll, $zapretDir\WinDivert64.sys" -ForegroundColor Yellow
 }
 Write-Host "- Downloading files"
 $baseFiles = @(
@@ -129,7 +129,7 @@ $ZAPRET_ARGS = $ZAPRET_ARGS.Replace("%zapretDir%", $zapretDir)
 Write-Host "- Creating service"
 try {
     sc.exe create winws1 binPath= "`"$zapretDir\winws.exe $ZAPRET_ARGS`"" start=auto DisplayName="zapret" type=own | Out-Null
-    sc description winws1 "Bypass internet censorship via modification DPI @ by bol-van & sevcator.github.io" | Out-Null
+    sc description winws1 "Bypass internet censorship via modification DPI @ by bol-van, sevcator.github.io" | Out-Null
     sc.exe start winws1 | Out-Null
 } catch {
     Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
