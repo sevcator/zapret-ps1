@@ -129,7 +129,7 @@ $ZAPRET_ARGS = $ZAPRET_ARGS.Replace("%zapretDir%", $zapretDir)
 Write-Host "- Creating service"
 try {
     sc.exe create winws1 binPath= "`"$zapretDir\winws.exe $ZAPRET_ARGS`"" start=auto DisplayName="zapret" type=own | Out-Null
-    sc description winws1 "Bypass internet censorship via modification DPI @ by bol-van, sevcator.github.io" | Out-Null
+    sc.exe description winws1 "Bypass internet censorship via modification DPI by bol-van and sevcator.github.io" | Out-Null
     sc.exe start winws1 | Out-Null
 } catch {
     Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
