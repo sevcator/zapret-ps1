@@ -1,63 +1,43 @@
-name: Scheduled Build
+name: Update Files
 
 on:
   schedule:
-    - cron: '0 */3 * * *'
-  workflow_dispatch:
+    - cron: '*/90 * * * *'  # Каждые 90 минут
+  workflow_dispatch:  # Позволяет запускать workflow вручную
 
 jobs:
-  build:
-    name: Build
+  update:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-        with:
-          repository: DNSCrypt/dnscrypt-proxy
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: 1
-          check-latest: true
-        id: go
-
-      - name: Create ci_build.sh
-        run: |
-          mkdir -p .ci
-          echo '#!/bin/sh' > .ci/ci_build.sh
-          echo 'PACKAGE_VERSION="$1"' >> .ci/ci_build.sh
-          echo 'cd dnscrypt-proxy || exit 1' >> .ci/ci_build.sh
-          echo 'go clean' >> .ci/ci_build.sh
-          echo 'env GOOS=windows GOARCH=amd64 go build -mod vendor -ldflags="-s -w"' >> .ci/ci_build.sh
-          echo 'mkdir win64' >> .ci/ci_build.sh
-          echo 'mv dnscrypt-proxy.exe win64/' >> .ci/ci_build.sh
-          echo 'cp localhost.pem win64/' >> .ci/ci_build.sh
-          echo 'mv win64/dnscrypt-proxy.exe win64/localhost.pem .' >> .ci/ci_build.sh
-
-      - name: Make ci_build.sh executable
-        run: chmod +x .ci/ci_build.sh
-
-      - name: Build
-        run: |
-          .ci/ci_build.sh "dev"
-
-      - name: Commit changes
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add -f dnscrypt-proxy/dnscrypt-proxy.exe dnscrypt-proxy/localhost.pem
-          current_date=$(date '+%Y-%m-%d %H:%M:%S')
-          git commit -m "⚡ Updated at ${current_date}" || echo "No changes to commit"
-
-      - name: Fetch latest changes
-        run: git fetch origin
-
-      - name: Merge changes
-        run: git merge origin/main
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+      
+    - name: Download files
+      run: |
+        cd files
+        wget -N --no-if-modified-since https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/winws.exe
+        wget -N --no-if-modified-since https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/cygwin1.dll
+        wget -N --no-if-modified-since https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert.dll
+        wget -N --no-if-modified-since https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/WinDivert64.sys
+        wget -N --no-if-modified-since https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
+        wget -N --no-if-modified-since -O quic-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/quic_initial_www_google_com.bin
+        wget -N --no-if-modified-since -O tls-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/tls_clienthello_www_google_com.bin
+        
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+    - name: Commit changes
+      run: |
+        git add .
+        current_date=$(date '+%Y-%m-%d %H:%M:%S')
+        git commit -m "⚡ Updated at ${current_date}" || echo "No changes to commit"
+        
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
