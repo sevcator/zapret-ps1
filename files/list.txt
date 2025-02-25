@@ -1,7 +1,6 @@
 googlevideo.com
 play.google.com
 youtu.be
-yt.be
 youtube.com
 youtubei.googleapis.com
 youtubeembeddedplayer.googleapis.com
@@ -39,7 +38,12 @@ cloudflare-ech.com
 betterttv.net
 lolz.guru
 zelenka.guru
+lolz.live
 soundcloud.com
 snd.cloud
 soundcloud.cloud
 steamstatic.com
+x.com
+twitter.com
+twimg.com
+t.co
