@@ -106,7 +106,7 @@ timeout /t 3 /nobreak >nul 2>&1
 sc delete winws1 >nul 2>&1
 sc delete windivert >nul 2>&1
 sc delete windivert11 >nul 2>&1
-msg * zapret has been Uninstalled
+msg * Zapret has been uninstalled
 rmdir /s /q "%zapretDir%" >nul 2>&1
 goto exit
 
