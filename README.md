@@ -28,3 +28,6 @@ irm https://sevcator.github.io/zapret.ps1 | iex
    
 # Contributing
 Feel free to contribute to this project by submitting issues or pull requests.
+
+# Problems
+Report in the [Issues](https://github.com/sevcator/zapret-ps1/issues) or directly in social networks
