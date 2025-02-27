@@ -20,7 +20,6 @@
 1. Open PowerShell as Administrator
    
 2. Enter the command:
-- For Stable:
 ```
 irm https://sevcator.github.io/zapret.ps1 | iex
 ```
