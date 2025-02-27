@@ -2,12 +2,12 @@
 > I am not responsible for any of your actions! This script is created for testing purposes.
 
 <p align="center">
-  <img src="https://github.com/sevcator/dnscrypt-ps1/blob/main/.github/readme-icon.png?raw=true" 
-       alt="DNSCrypt" 
+  <img src="https://raw.githubusercontent.com/gist/Xainey/d5bde7d01dcbac51ac951810e94313aa/raw/6c858c46726541b48ddaaebab29c41c07a196394/PowerShell.svg" 
+       alt="Windows PowerShell" 
        width="128" 
        height="128">
 </p>
-<h1 align="center">dnscrypt-ps1</h1>
+<h1 align="center">zapret-ps1</h1>
 
 <hr>
 
@@ -20,8 +20,9 @@
 1. Open PowerShell as Administrator
    
 2. Enter the command:
+- For Stable:
 ```
-irm https://sevcator.github.io/dnscrypt.ps1 | iex
+irm https://sevcator.github.io/zapret.ps1 | iex
 ```
 
 3. Done!
