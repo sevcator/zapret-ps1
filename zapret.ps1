@@ -72,6 +72,7 @@ Write-Host "- Destroying services"
 }
 Write-Host "- Flushing DNS cache"
 ipconfig /flushdns -ErrorAction SilentlyContinue | Out-Null
+New-Item -Path $zapretDir -ItemType Directory | Out-Null
 $exclusionPath = "$zapretDir\winws.exe"
 Write-Host "- Adding exclusion"
 if (-not (Test-Path $exclusionPath)) {
@@ -115,6 +116,7 @@ function Download-Files($files, $baseUrl, $destination) {
     }
 }
 Download-Files $baseFiles $baseUrl $zapretDir
+New-Item -Path $tacticsDir -ItemType Directory | Out-Null
 Download-Files $tacticsFiles $tacticsUrl $zapretDir
 Copy-Item "$zapretDir\zapret-redirect.cmd" "$system32Dir\zapret.cmd" -Force
 foreach ($file in $files) {
