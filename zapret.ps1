@@ -71,7 +71,11 @@ Write-Host "- Destroying services"
     }
 }
 Write-Host "- Flushing DNS cache"
-ipconfig /flushdns -ErrorAction SilentlyContinue | Out-Null
+try {
+    ipconfig /flushdns | Out-Null
+} catch {
+    Write-Host "! Failed to flush DNS cache: $($_.Exception.Message)" -ForegroundColor Yellow
+}
 New-Item -Path $zapretDir -ItemType Directory | Out-Null
 $exclusionPath = "$zapretDir\winws.exe"
 Write-Host "- Adding exclusion"
