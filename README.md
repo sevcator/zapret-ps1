@@ -19,9 +19,9 @@
 
 1. Open PowerShell as Administrator
    
-2. Enter the command:
+2. Copy RAW link to script and enter the command:
 ```
-irm https://sevcator.github.io/zapret.ps1 | iex
+irm <link to script> | iex
 ```
 
 3. Done!
