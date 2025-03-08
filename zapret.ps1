@@ -145,9 +145,11 @@ Download-Files $tacticsFiles $tacticsUrl $tacticsDir
 # Make zapret usable as system command
 Move-Item "$zapretDir\zapret-redirect.cmd" "$system32Dir\zapret.cmd" -Force | Out-Null
 
-# Create service
-$ZAPRET_ARGS = Get-Content "$zapretDir\autohosts-bol-van.txt" -Raw
+# Pick a default tactic for DPI modification
+$ZAPRET_ARGS = Get-Content "$tacticsDir\autohosts-bol-van.txt" -Raw
 $ZAPRET_ARGS = $ZAPRET_ARGS.Replace("%zapretDir%", $zapretDir)
+
+# Create service
 Write-Host "- Creating service"
 try {
     sc.exe create winws1 binPath= "$zapretDir\winws.exe $ZAPRET_ARGS" start= auto DisplayName= "zapret" type= own | Out-Null
