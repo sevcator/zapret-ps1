@@ -4,13 +4,13 @@ Write-Host @"
                             _   
                            | |  
     ______ _ _ __  _ __ ___| |_ 
-   |_  / _` | '_ \| '__/ _ \ __|ф
+   |_  / _` | '_ \| '__/ _ \ __|
     / / (_| | |_) | | |  __/ |_ 
    /___\__,_| .__/|_|  \___|\__|
             | |                 
             |_|                 
 
- <> sevcator.github.io & bol-van <>
+ ** sevcator.github.io & bol-van **
 "@
 
 # Script variables
