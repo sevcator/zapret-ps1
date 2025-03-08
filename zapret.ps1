@@ -1,16 +1,25 @@
+# Script title
 Clear-Host
-$zapretDir = "$env:windir\Zapret"
-$system32Dir = "$env:windir\System32"
-Write-Host ""
-Write-Host "  /ZZZZZ    AAAA   PPPPP   RRRRR   EEEEE   TTTTT"
-Write-Host "      /Z   A    A  P    P  R    R  E         T"
-Write-Host "     /Z   A      A P    P  R    R  E         T"
-Write-Host "    /Z    AAAAAAAA PPPPP   RRRRR   EEEE      T"
-Write-Host "   /Z     A      A P       R   R   E         T"
-Write-Host "  /Z      A      A P       R    R  E         T"
-Write-Host " /ZZZZZ   A      A P       R     R EEEEE     T"
-Write-Host "    sevcator.github.io - github.com/bol-van"
-Write-Host ""
+Write-Host @"
+                            _   
+                           | |  
+    ______ _ _ __  _ __ ___| |_ 
+   |_  / _` | '_ \| '__/ _ \ __|
+    / / (_| | |_) | | |  __/ |_ 
+   /___\__,_| .__/|_|  \___|\__|
+            | |                 
+            |_|                 
+
+ <> sevcator.github.io & bol-van <>
+"@
+
+# Script variables
+$zapretDir = "$env:windir\Zapret" # Directory where is software is installed
+$system32Dir = "$env:windir\System32" # PATH Directory to use zapret as system command
+$tacticsDir = "$zapretDir\tactics" # Directory to create and download tactics
+$initialDirectory = Get-Location # For back to directory when script is done
+
+# Check Administrator rights
 function Check-Admin {
     $identity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object System.Security.Principal.WindowsPrincipal($identity)
@@ -20,10 +29,17 @@ if (-not (Check-Admin)) {
     Write-Host "! Run PowerShell as administrator rights!"
     return
 }
-$initialDirectory = Get-Location
+
+# Check Windows architecture
+if (-not [Environment]::Is64BitOperatingSystem) {
+    Write-Host "* Windows architecture is not 64-bit!"
+    return
+}
+Write-Host "- Windows architecture is 64-bit"
+
+# Check Windows version and enable Test Mode if needed
 $osVersion = [Environment]::OSVersion.Version
-Write-Host "- Windows version: $osVersion"
-$windows10Version = New-Object System.Version(10, 0)
+Write-Host "- Windows version is $osVersion"
 if ($osVersion.Major -lt 10) {
     Write-Host "* Enabling Test Mode for Windows less than 10" -ForegroundColor Yellow
     $testMode = bcdedit /enum | Select-String "testsigning" -Quiet
@@ -35,15 +51,8 @@ if ($osVersion.Major -lt 10) {
         exit 1
     }
 }
-function Check-ProcessorArchitecture {
-    $processor = Get-WmiObject -Class Win32_Processor
-    return $processor.AddressWidth -eq 64
-}
-if (-not [Environment]::Is64BitOperatingSystem) {
-    Write-Host "* Your system is not 64-bit"
-    return
-}
-Write-Host "- Your system is 64-bit"
+
+# Terminate and destroy old copies or/and softwares to bypass blocking via DPI 
 Write-Host "- Terminating processes"
 @("GoodbyeDPI", "winws", "zapret") | ForEach-Object {
     Get-Process -Name $_ -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -70,15 +79,37 @@ Write-Host "- Destroying services"
 
     }
 }
+
+# Clean DNS Cache
 Write-Host "- Flushing DNS cache"
 try {
     ipconfig /flushdns | Out-Null
 } catch {
     Write-Host "! Failed to flush DNS cache: $($_.Exception.Message)" -ForegroundColor Yellow
 }
+
+# Function to download files
+function Download-Files($files, $baseUrl, $destination) {
+    foreach ($file in $files) {
+        try {
+            $url = "$baseUrl/$file"
+            $outFile = Join-Path $destination $file
+            Invoke-WebRequest -Uri $url -OutFile $outFile -ErrorAction Stop
+        } catch {
+            Write-Host "* Error to download $file : $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+}
+$baseUrl = "https://github.com/sevcator/zapret-ps1/raw/refs/heads/main/files"
+$tacticsUrl = "$baseUrl/tactics"
+
+# Create directories
 New-Item -Path $zapretDir -ItemType Directory | Out-Null
+New-Item -Path $tacticsDir -ItemType Directory | Out-Null
+
+# Add exclusion to Defender
 $exclusionPath = "$zapretDir\winws.exe"
-Write-Host "- Adding exclusion"
+Write-Host "- Adding Microsoft Defender exclusion"
 if (-not (Test-Path $exclusionPath)) {
     New-Item -Path $exclusionPath -ItemType File -ErrorAction SilentlyContinue | Out-Null
 }
@@ -86,8 +117,10 @@ try {
     Add-MpPreference -ExclusionPath $exclusionPath -ErrorAction SilentlyContinue
     Start-Sleep -Seconds 5
 } catch {
-    Write-Host "- Error adding exclusion? If you have another AntiMalware software, add exclusion $zapretDir\winws.exe, $zapretDir\WinDivert.dll, $zapretDir\WinDivert64.sys" -ForegroundColor Yellow
+    Write-Host "* Error adding Microsoft Defender exclusion, this may happen if Defender " -ForegroundColor Yellow
 }
+
+# Download files
 Write-Host "- Downloading files"
 $baseFiles = @(
     "WinDivert.dll", "WinDivert64.sys", "cygwin1.dll", "winws.exe",
@@ -106,30 +139,13 @@ $tacticsFiles = @(
     "hosts-flowseal-alt.txt", "hosts-flowseal-mgts-2.txt",
     "hosts-flowseal-mgts.txt", "hosts-flowseal.txt"
 )
-$baseUrl = "https://github.com/sevcator/zapret-ps1/raw/refs/heads/main/files"
-$tacticsUrl = "$baseUrl/tactics"
-function Download-Files($files, $baseUrl, $destination) {
-    foreach ($file in $files) {
-        try {
-            $url = "$baseUrl/$file"
-            $outFile = Join-Path $destination $file
-            Invoke-WebRequest -Uri $url -OutFile $outFile -ErrorAction Stop
-        } catch {
-            Write-Host "* Error to download $file : $($_.Exception.Message)" -ForegroundColor Red
-        }
-    }
-}
 Download-Files $baseFiles $baseUrl $zapretDir
-New-Item -Path $tacticsDir -ItemType Directory | Out-Null
 Download-Files $tacticsFiles $tacticsUrl $zapretDir
-Copy-Item "$zapretDir\zapret-redirect.cmd" "$system32Dir\zapret.cmd" -Force
-foreach ($file in $files) {
-    try {
-        Invoke-WebRequest -Uri $file.Url -OutFile "$zapretDir\$($file.Name)" -ErrorAction Stop | Out-Null
-    } catch {
-        Write-Host ("{0}: {1}" -f $($file.Name), $_.Exception.Message) -ForegroundColor Red
-    }
-}
+
+# Make zapret usable as system command
+Move-Item "$zapretDir\zapret-redirect.cmd" "$system32Dir\zapret.cmd" -Force | Out-Null
+
+# Create service
 $ZAPRET_ARGS = Get-Content "$zapretDir\autohosts-bol-van.txt" -Raw
 $ZAPRET_ARGS = $ZAPRET_ARGS.Replace("%zapretDir%", $zapretDir)
 Write-Host "- Creating service"
@@ -140,4 +156,7 @@ try {
 } catch {
     Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
 }
+
+# Final steps
 Write-Host "- Done!"
+Set-Location $initialDirectory
