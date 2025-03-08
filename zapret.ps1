@@ -140,7 +140,7 @@ $tacticsFiles = @(
     "hosts-flowseal-mgts.txt", "hosts-flowseal.txt"
 )
 Download-Files $baseFiles $baseUrl $zapretDir
-Download-Files $tacticsFiles $tacticsUrl $zapretDir
+Download-Files $tacticsFiles $tacticsUrl $tacticsDir
 
 # Make zapret usable as system command
 Move-Item "$zapretDir\zapret-redirect.cmd" "$system32Dir\zapret.cmd" -Force | Out-Null
