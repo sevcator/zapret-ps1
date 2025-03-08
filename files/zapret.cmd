@@ -17,7 +17,7 @@ echo    /Z    AAAAAAAA PPPPP   RRRRR   EEEE      T
 echo   /Z     A      A P       R   R   E         T
 echo  /Z      A      A P       R    R  E         T
 echo /ZZZZZ   A      A P       R     R EEEEE     T
-echo    sevcator.github.io - github.com/bol-van
+echo      ** sevcator.github.io - bol-van **
 echo.
 echo 1. Start service
 echo 2. Stop service
