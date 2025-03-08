@@ -4,7 +4,7 @@ Write-Host @"
                             _   
                            | |  
     ______ _ _ __  _ __ ___| |_ 
-   |_  / _` | '_ \| '__/ _ \ __|
+   |_  / _` | '_ \| '__/ _ \ __|ф
     / / (_| | |_) | | |  __/ |_ 
    /___\__,_| .__/|_|  \___|\__|
             | |                 
@@ -104,8 +104,12 @@ $baseUrl = "https://github.com/sevcator/zapret-ps1/raw/refs/heads/main/files"
 $tacticsUrl = "$baseUrl/tactics"
 
 # Create directories
-New-Item -Path $zapretDir -ItemType Directory | Out-Null
-New-Item -Path $tacticsDir -ItemType Directory | Out-Null
+if (-not (Test-Path $zapretDir)) {
+    New-Item -Path $zapretDir -ItemType Directory | Out-Null
+}
+if (-not (Test-Path $tacticsDir)) {
+    New-Item -Path $tacticsDir -ItemType Directory | Out-Null
+}
 
 # Add exclusion to Defender
 $exclusionPath = "$zapretDir\winws.exe"
