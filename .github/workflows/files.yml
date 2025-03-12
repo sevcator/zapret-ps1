@@ -16,6 +16,7 @@ jobs:
       
     - name: Download files
       run: |
+        mkdir -p files
         cd files
         wget -N --no-if-modified-since https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/winws.exe
         wget -N --no-if-modified-since https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/cygwin1.dll
