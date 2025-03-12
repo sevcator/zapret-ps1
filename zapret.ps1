@@ -97,11 +97,11 @@ function Download-Files($files, $baseUrl, $destination) {
             Invoke-WebRequest -Uri $url -OutFile $outFile -ErrorAction Stop
         } catch {
             Write-Host "* Error to download $file : $($_.Exception.Message)" -ForegroundColor Red
+            return
         }
     }
 }
 $baseUrl = "https://github.com/sevcator/zapret-ps1/raw/refs/heads/main/files"
-$tacticsUrl = "$baseUrl/tactics"
 
 # Create directories
 if (-not (Test-Path $zapretDir)) {
@@ -124,27 +124,27 @@ try {
     Write-Host "* Error adding Microsoft Defender exclusion, this may happen if Defender " -ForegroundColor Yellow
 }
 
-# Download files
+# Download files and extract tactics
 Write-Host "- Downloading files"
 $baseFiles = @(
     "WinDivert.dll", "WinDivert64.sys", "cygwin1.dll", "winws.exe",
     "ipset-discord.txt", "list.txt", "list-exclude.txt",
-    "tls-google.bin", "quic-google.bin", "zapret.cmd", "zapret-redirect.cmd"
-)
-$tacticsFiles = @(
-    "autohosts-bol-van.txt", "autohosts-flowseal-alt-2.txt",
-    "autohosts-flowseal-alt-3.txt", "autohosts-flowseal-alt-4.txt",
-    "autohosts-flowseal-alt-5.txt", "autohosts-flowseal-alt-6.txt",
-    "autohosts-flowseal-alt.txt", "autohosts-flowseal-mgts-2.txt",
-    "autohosts-flowseal-mgts.txt", "autohosts-flowseal.txt",
-    "hosts-bol-van.txt", "hosts-flowseal-alt-2.txt",
-    "hosts-flowseal-alt-3.txt", "hosts-flowseal-alt-4.txt",
-    "hosts-flowseal-alt-5.txt", "hosts-flowseal-alt-6.txt",
-    "hosts-flowseal-alt.txt", "hosts-flowseal-mgts-2.txt",
-    "hosts-flowseal-mgts.txt", "hosts-flowseal.txt"
+    "tls-google.bin", "quic-google.bin", "zapret.cmd", "zapret-redirect.cmd", "tactics.zip"
 )
 Download-Files $baseFiles $baseUrl $zapretDir
-Download-Files $tacticsFiles $tacticsUrl $tacticsDir
+$tacticsZip = Join-Path $zapretDir "tactics.zip"
+if (Test-Path $tacticsZip) {
+    try {
+        Expand-Archive -Path $tacticsZip -DestinationPath $tacticsDir -Force
+        Remove-Item $tacticsZip -Force 
+    } catch {
+        Write-Host "! Error to extract tactics.zip: $($_.Exception.Message)" -ForegroundColor Red
+        return
+    }
+} else {
+    Write-Host "! tactics.zip not found" -ForegroundColor Red
+    return
+}
 
 # Make zapret usable as system command
 Move-Item "$zapretDir\zapret-redirect.cmd" "$system32Dir\zapret.cmd" -Force | Out-Null
@@ -161,6 +161,7 @@ try {
     sc.exe start winws1 | Out-Null
 } catch {
     Write-Host ("! Failed to create or start service: {0}" -f $_.Exception.Message) -ForegroundColor Red
+    return
 }
 
 # Final steps
