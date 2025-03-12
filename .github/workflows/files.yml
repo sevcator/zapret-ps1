@@ -24,6 +24,8 @@ jobs:
         wget -N --no-if-modified-since https://raw.githubusercontent.com/bol-van/zapret-win-bundle/refs/heads/master/zapret-winws/files/ipset-discord.txt
         wget -N --no-if-modified-since -O quic-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/quic_initial_www_google_com.bin
         wget -N --no-if-modified-since -O tls-google.bin https://github.com/bol-van/zapret-win-bundle/raw/refs/heads/master/zapret-winws/files/tls_clienthello_www_google_com.bin
+        sudo apt install -y p7zip-full
+        7z a ./files/tactics.zip ./files/tactics/*
         
     - name: Configure Git
       run: |
