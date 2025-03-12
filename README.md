@@ -17,5 +17,3 @@
 
 # Contributing
 Feel free to contribute to this project by submitting issues or pull requests.
-
-Report problems in the [Issues](https://github.com/sevcator/zapret-ps1/issues) or [directly message me](https://sevcator.github.io).
