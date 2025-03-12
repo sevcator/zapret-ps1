@@ -15,19 +15,6 @@
   
 <p align="center"> </a> <a href="https://sevcator.github.io"> <img src="https://img.shields.io/badge/GitHub-Homepage-000000?logo=github" alt="GitHub - Homepage"> </a> </p>
 
-## How to use (Windows 10-11)
-
-1. Open PowerShell as Administrator
-   
-2. Copy RAW link to script and enter the command:
-```
-irm <link to script> | iex
-```
-
-3. Done!
-   
 # Contributing
 Feel free to contribute to this project by submitting issues or pull requests.
-
-# Problems
-Report in the [Issues](https://github.com/sevcator/zapret-ps1/issues) or directly in social networks
+Report problems in the [Issues](https://github.com/sevcator/zapret-ps1/issues) or [directly message me](https://sevcator.github.io]
